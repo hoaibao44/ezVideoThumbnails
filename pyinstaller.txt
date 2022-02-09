@@ -1,0 +1,1 @@
+pyinstaller main.py --onefile --paths="C:\Users\DT0083\AppData\Local\Programs\Python\Python37\Lib\site-packages\cv2" --add-binary C:\Users\DT0083\AppData\Local\Programs\Python\Python37\Lib\site-packages\cv2\opencv_videoio_ffmpeg455_64.dll;.
