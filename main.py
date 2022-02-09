@@ -3,31 +3,35 @@ import cv2
 
 
 def video2thumb_by_time(file_path, time, output_file):
-    # read video
-    vcap = cv2.VideoCapture(file_path)
+    try:
+        # read video
+        vcap = cv2.VideoCapture(file_path)
 
-    fps_int = round(vcap.get(cv2.CAP_PROP_FPS))  # get fps
-    total_length = vcap.get(cv2.CAP_PROP_FRAME_COUNT) / \
-        vcap.get(cv2.CAP_PROP_FPS)
+        fps_int = round(vcap.get(cv2.CAP_PROP_FPS))  # get fps
+        total_length = vcap.get(cv2.CAP_PROP_FRAME_COUNT) / \
+            vcap.get(cv2.CAP_PROP_FPS)
 
-    # print('video solution {}x{}'.format(
-    #     vcap.get(cv2.CAP_PROP_FRAME_WIDTH), vcap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+        # print('video solution {}x{}'.format(
+        #     vcap.get(cv2.CAP_PROP_FRAME_WIDTH), vcap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
 
-    # if time surpass total length then time = 1 (s)
-    if time > total_length:
-        time = 1
+        # if time surpass total length then time = 1 (s)
+        if time > total_length:
+            time = 1
 
-    iFrame = 0
-    while True:
-        iFrame += 1
-        ret, frame = vcap.read()
+        iFrame = 0
+        while True:
+            iFrame += 1
+            ret, frame = vcap.read()
 
-        if not ret:
-            return False
+            if not ret:
+                return False
 
-        if round(iFrame/fps_int) > time:
-            cv2.imwrite(output_file, frame)
-            return True
+            if round(iFrame/fps_int) > time:
+                cv2.imwrite(output_file, frame)
+                return True
+    except Exception as e:
+        logging.error('ERROR -- {}'.format(file_path))
+        print(e.__str__)
 
 
 def auto_generated():
