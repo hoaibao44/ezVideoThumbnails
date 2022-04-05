@@ -31,18 +31,25 @@ def get_file_info():
 
     logging.info('Main File -- ' + os.path.join(base_path, data['main_file']))
 
-    wb = openpyxl.load_workbook(os.path.join(base_path, data['main_file']))
+    wb = openpyxl.load_workbook(os.path.join(
+        base_path, data['main_file']))
     sheet_go = wb['GO']
     data_dict = {
         'file_path': [],
         'file_name': [],
+        'output_name': [],
         'time': [],
     }
     for idx in range(7, sheet_go.max_row):
         if sheet_go['E'+str(idx)].value is not None:
             data_dict['file_path'].append(sheet_go['E'+str(idx)].value)
             data_dict['file_name'].append(sheet_go['F'+str(idx)].value)
-            data_dict['time'].append(sheet_go['G'+str(idx)].value)
+            if not sheet_go['G'+str(idx)].value in data_dict['output_name']:
+                data_dict['output_name'].append(sheet_go['G'+str(idx)].value)
+            else:
+                out_name = str(idx)+'_'+str(sheet_go['G'+str(idx)].value)
+                data_dict['output_name'].append(out_name)
+            data_dict['time'].append(sheet_go['H'+str(idx)].value)
 
     return pd.DataFrame.from_dict(data_dict)
 

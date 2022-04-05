@@ -20,7 +20,9 @@ def video2thumb_by_time(file_path, time, output_file):
 
             # if time surpass total length then time = 1 (s)
             if time > total_length:
-                time = 1
+                time = total_length
+                logging.warn(
+                    'time > max_length of video: set time = {}'.format(str(total_length)))
 
             iFrame = 0
             while True:
@@ -28,11 +30,31 @@ def video2thumb_by_time(file_path, time, output_file):
                 ret, frame = vcap.read()
 
                 if not ret:
+                    logging.error('error')
+                    vcap.release()
+
+                    cv2.destroyAllWindows()
                     return False
 
-                if round(iFrame/fps_int) > time:
-                    cv2.imwrite(output_file, frame)
+                if iFrame == vcap.get(cv2.CAP_PROP_FRAME_COUNT) and ret:
+                    logging.warn(
+                        'reach last frame: set last frame as thumbnails')
+                    # cv2.imwrite(output_file, frame)
+
+                    imwrite(output_file, frame)
+                    vcap.release()
+                    cv2.destroyAllWindows()
                     return True
+
+                if round(iFrame/fps_int, 2) >= time:
+                    # cv2.imwrite(output_file, frame)
+                    imwrite(output_file, frame)
+
+                    # Release all space and windows once done
+                    vcap.release()
+                    cv2.destroyAllWindows()
+                    return True
+
         else:
             logging.warn('File not exists -- {}'.format(file_path))
             return False
@@ -67,10 +89,27 @@ def auto_generated():
     fommatExcelFile(os.path.join(base_path, 'outputFile.xlsx'))
 
 
+def imwrite(filename, img, params=None):
+    try:
+        ext = os.path.splitext(filename)[1]
+        result, n = cv2.imencode(ext, img, params)
+
+        if result:
+            with open(filename, mode='w+b') as f:
+                n.tofile(f)
+            return True
+        else:
+            return False
+    except Exception as e:
+        print(e)
+        return False
+
+
 if __name__ == "__main__":
     global base_path, input_path, output_path
 
     base_path = getWhereIsMain()
+
     input_path = os.path.join(base_path, '1_input')
     output_path = os.path.join(base_path, '2_output')
     # not display warnings
@@ -91,21 +130,24 @@ if __name__ == "__main__":
     for idx in range(0, len(output_pd)):
         file_path = output_pd['file_path'][idx]
         file_name = output_pd['file_name'][idx].split('.')[0]
+        output_name = output_pd['output_name'][idx]
 
         logging.info('Processing -- {}'.format(file_name))
 
-        if output_pd['time'][idx] != 0:
+        if output_pd['time'][idx] != '':
             time = output_pd['time'][idx]
         else:
             time = 2
-        output_file = os.path.join(output_path, '{}.jpg'.format(file_name))
+
+        output_file = os.path.join(output_path, '{}.jpg'.format(output_name))
+
         if video2thumb_by_time(file_path, time, output_file):
             output_pd['output_file_path'][idx] = output_file
-            output_pd['output_file_name'][idx] = '{}.jpg'.format(file_name)
+            output_pd['output_file_name'][idx] = '{}.jpg'.format(output_name)
 
     output_pd.to_excel(os.path.join(base_path, '2_output',
                        'outputFile.xlsx'), index=False)
     fommatExcelFile(os.path.join(base_path, '2_output', 'outputFile.xlsx'))
     logging.info('Write output file -- {}'.format(os.path.join(base_path,
                  '2_output', 'outputFile.xlsx')))
-    # os.system("pause")
+    os.system("pause")
