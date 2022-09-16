@@ -1,11 +1,10 @@
-from cgitb import handler
 from typing import Any
-from urllib import request
 from mainHandyFunc import *
 import validators
 import cv2
 import requests
 from threading import Thread
+from logging import config
 
 
 class MainWorker:
@@ -290,8 +289,12 @@ if __name__ == "__main__":
 
     # not display warnings
     warnings.simplefilter('ignore')
-    logging.basicConfig(format=r'#%(asctime)s:%(levelname)s\\ %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S', level=logging.INFO)  # , filename=os.path.join(base_path, '98_log', 'ezTW_runningLog-{}.txt'.format(startTime_str))
+
+    if os.path.exists('logging.conf'):
+        logging.config.fileConfig('logging.conf')  # type: ignore
+    else:
+        logging.basicConfig(format=r'#%(asctime)s:%(levelname)s\\ %(message)s',
+                            datefmt='%Y-%m-%d %H:%M:%S', level=logging.DEBUG)  # , filename=os.path.join(base_path, '98_log', 'ezTW_runningLog-{}.txt'.format(startTime_str))
 
     logging.info('MAIN>> START!')
     bao = MainWorker(runType='single')

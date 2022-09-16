@@ -1,0 +1,5 @@
+opencv_python==4.6.0.66
+openpyxl==3.0.9
+pandas==1.4.2
+requests==2.27.1
+validators==0.20.0
