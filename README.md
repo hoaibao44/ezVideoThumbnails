@@ -1,3 +1,7 @@
+# ezVideoThumbnails
+
+capture img from video
+
 # pyinstaller cmd
 
 1/ get path of openCV
